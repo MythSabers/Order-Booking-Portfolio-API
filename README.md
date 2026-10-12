@@ -1,6 +1,6 @@
 # FYNXT Order Booking & Portfolio API
 
-Java 17 + Spring Boot + Spring Data JPA + PostgreSQL. Implements all six endpoints described in the take-home assignment.
+Java 17 + Spring Boot + Spring Data JPA + MySQL. Implements all six endpoints.
 
 ## Run locally
 
