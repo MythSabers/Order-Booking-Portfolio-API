@@ -1,3 +1,10 @@
+
+.idea
+test
+README.md
+target
+src/test
+
 # Compiled class file
 *.class
 

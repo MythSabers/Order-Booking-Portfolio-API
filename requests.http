@@ -1,0 +1,17 @@
+### Place BUY order
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{"traderId":"T001","stock":"AAPL","sector":"TECH","quantity":50,"side":"BUY"}
+
+### Add starting holdings
+POST http://localhost:8080/api/traders/T001/portfolio/holdings
+Content-Type: application/json
+
+{"stock":"AAPL","sector":"TECH","quantity":100}
+
+### Portfolio
+GET http://localhost:8080/api/traders/T001/portfolio
+
+### Sector overlap
+GET http://localhost:8080/api/traders/T001/sector-overlap
