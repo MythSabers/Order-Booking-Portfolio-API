@@ -12,8 +12,9 @@ import java.util.Optional;
 
 public interface TraderRepository extends JpaRepository<TraderEntity, String> {
     @Modifying
-    @Query(value = "INSERT INTO traders(trader_id) VALUES (:id) ON CONFLICT (trader_id) DO NOTHING", nativeQuery = true)
+    @Query(value = "INSERT IGNORE INTO traders(trader_id) VALUES (:id)", nativeQuery = true)
     void createIfAbsent(@Param("id") String id);
+
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from TraderEntity t where t.traderId = :id")

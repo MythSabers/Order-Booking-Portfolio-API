@@ -99,8 +99,8 @@ public class TradingService {
     @Transactional(readOnly = true)
     public PortfolioResponse portfolio(String traderId) {
         List<PositionEntity> holdings = positions.findByTraderId(traderId);
-        Map<String, Long> byStock = new TreeMap<>();
-        Map<String, Long> bySector = new TreeMap<>();
+        Map<String, Long> byStock = new HashMap<>();
+        Map<String, Long> bySector = new HashMap<>();
         for (PositionEntity p : holdings) {
             if (p.getQuantity() <= 0)
                 continue;
@@ -113,7 +113,8 @@ public class TradingService {
     @Transactional
     public PortfolioResponse addHolding(String traderId, AddHoldingRequest request) {
         lockTrader(traderId);
-        String stock = normalize(request.stock()), sector = request.sector().trim().toUpperCase(Locale.ROOT);
+        String stock = normalize(request.stock());
+        String sector = request.sector().trim().toUpperCase(Locale.ROOT);
         PositionEntity existing = positions.findByTraderIdAndStock(traderId, stock).orElse(null);
         if (existing == null)
             positions.save(
@@ -133,8 +134,13 @@ public class TradingService {
 
     @Transactional(readOnly = true)
     public OverlapResponse overlap(String traderId) {
-        return OverlapAnalyzer.analyze(positions.findByTraderId(traderId).stream()
-                .filter(p -> p.getQuantity() > 0).map(PositionEntity::getStock).collect(Collectors.toSet()));
+        return OverlapAnalyzer.analyze(positions.findByTraderId(traderId)
+                .stream()
+                .filter(p -> p.getQuantity() > 0)
+                .map(PositionEntity::getStock)
+                .filter(s -> s != null && !s.isBlank())
+                .map(s -> s.trim().toUpperCase(Locale.ROOT))
+                .collect(Collectors.toSet()));
     }
 
     private OrderEntity ownedOrder(String traderId, UUID id) {

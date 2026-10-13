@@ -6,11 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
-    open-in-view: false
-  sql:
-    init:
-      mode: always
+      ddl-auto: none
   jackson:
     default-property-inclusion: non_null
 server:

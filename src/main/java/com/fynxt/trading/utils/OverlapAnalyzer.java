@@ -18,14 +18,7 @@ public final class OverlapAnalyzer {
     private OverlapAnalyzer() {
     }
 
-    public static OverlapResponse analyze(Collection<String> heldStocks) {
-        Set<String> portfolio = new HashSet<>();
-        if (heldStocks != null)
-            portfolio = heldStocks.stream()
-                    .filter(s -> s != null && !s.isBlank())
-                    .map(s -> s.trim().toUpperCase(Locale.ROOT))
-                    .collect(Collectors.toSet());
-
+    public static OverlapResponse analyze(Set<String> portfolio) {
         List<BasketOverlap> results = new ArrayList<>();
         String dominant = null;
         BigDecimal max = BigDecimal.valueOf(-1);
@@ -33,8 +26,9 @@ public final class OverlapAnalyzer {
             long common = portfolio.stream().filter(basket.getValue()::contains).count();
             int denominator = portfolio.size() + basket.getValue().size();
             BigDecimal percent = denominator == 0 ? BigDecimal.ZERO :
-                    BigDecimal.valueOf(2L * common).multiply(BigDecimal.valueOf(100))
-                            .divide(BigDecimal.valueOf(denominator), 2, RoundingMode.HALF_UP);
+                    BigDecimal.valueOf(2L * common)
+                            .divide(BigDecimal.valueOf(denominator), 2, RoundingMode.HALF_UP)
+                            .multiply(BigDecimal.valueOf(100));
             results.add(new BasketOverlap(basket.getKey(), percent.setScale(2, RoundingMode.HALF_UP).toPlainString() + "%"));
             if (percent.compareTo(max) > 0) {
                 max = percent;
@@ -43,7 +37,7 @@ public final class OverlapAnalyzer {
         }
         String risk = max.compareTo(BigDecimal.valueOf(60)) >= 0
                 ? "HIGH"
-                : max.compareTo(BigDecimal.valueOf(40)) >= 0 ? "MEDIUM" : "LOW";
+                : (max.compareTo(BigDecimal.valueOf(40)) >= 0 ? "MEDIUM" : "LOW");
         return new OverlapResponse(List.copyOf(results), dominant, risk);
     }
 }

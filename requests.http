@@ -1,17 +1,26 @@
 ### Place BUY order
-POST http://localhost:8080/api/orders
+POST {{host}}/api/orders
 Content-Type: application/json
 
-{"traderId":"T001","stock":"AAPL","sector":"TECH","quantity":50,"side":"BUY"}
+{"traderId": "{{traderId}}","stock":"NVDA","sector":"TECH","quantity":50,"side":"BUY"}
+
+### Fill an Order
+POST {{host}}/api/traders/{{traderId}}/orders/{{orderId}}/fill
+Content-Type: application/json
+Accept: application/json
+
+### Cancels an Order
+POST {{host}}/api/traders/{{traderId}}/orders/{{orderId}}/cancel
+
+### Portfolio
+GET {{host}}/api/traders/{{traderId}}/portfolio
+
+### Sector overlap
+GET {{host}}/api/traders/{{traderId}}/sector-overlap
+
 
 ### Add starting holdings
-POST http://localhost:8080/api/traders/T001/portfolio/holdings
+POST {{host}}/api/traders/{{traderId}}/portfolio/holdings
 Content-Type: application/json
 
 {"stock":"AAPL","sector":"TECH","quantity":100}
-
-### Portfolio
-GET http://localhost:8080/api/traders/T001/portfolio
-
-### Sector overlap
-GET http://localhost:8080/api/traders/T001/sector-overlap
