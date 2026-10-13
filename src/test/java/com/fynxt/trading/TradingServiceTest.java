@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,38 +29,45 @@ class TradingServiceTest {
 
     @BeforeEach
     void setup() {
-//        traders = mock(TraderRepository.class);
-//        orders = mock(OrderRepository.class);
-//        positions = mock(PositionRepository.class);
-//        when(traders.lockById(any())).thenReturn(Optional.of(new TraderEntity("T1")));
-//        service = new TradingService(traders, orders, positions);
+        traders = mock(TraderRepository.class);
+        orders = mock(OrderRepository.class);
+        positions = mock(PositionRepository.class);
+        when(traders.lockById(any())).thenReturn(Optional.of(new TraderEntity("T1", Instant.now())));
+        service = new TradingService(traders, orders, positions);
     }
 
     @Test
     void rejectsFourthPendingOrder() {
-        when(orders.countByTraderIdAndStatus("T1", OrderStatus.PENDING)).thenReturn(3L);
-        PlaceOrderRequest request = new PlaceOrderRequest("T1", "AAPL", "TECH", 10, OrderSide.BUY);
+        when(orders.countByTraderIdAndStatus("T001", OrderStatus.PENDING)).thenReturn(3L);
+        PlaceOrderRequest request = new PlaceOrderRequest("T001", "AAPL", "TECH", 10, OrderSide.BUY);
         assertThrows(ResponseStatusException.class, () -> service.placeOrder(request));
         verify(orders, never()).save(any());
     }
 
     @Test
     void rejectsSellWhenAvailableSharesAreInsufficient() {
-//        when(orders.countByTraderIdAndStatus("T1", OrderStatus.PENDING)).thenReturn(0L);
-//        when(positions.findByTraderIdAndStock("T1", "AAPL"))
-//                .thenReturn(Optional.of(new PositionEntity("T1", "AAPL", "TECH", 10)));
-//        when(orders.findByTraderIdAndStockAndStatus("T1", "AAPL", OrderStatus.PENDING))
-//                .thenReturn(java.util.List.of());
-//        PlaceOrderRequest request = new PlaceOrderRequest("T1", "AAPL", "TECH", 11, OrderSide.SELL);
-//        assertThrows(ResponseStatusException.class, () -> service.placeOrder(request));
-//        verify(orders, never()).save(any());
+        when(orders.countByTraderIdAndStatus("T1", OrderStatus.PENDING)).thenReturn(0L);
+        when(positions.findByTraderIdAndStock("T1", "AAPL"))
+                .thenReturn(Optional.of(
+                        PositionEntity.builder()
+                                .traderId("T001")
+                                .stock("AAPL")
+                                .sector("TECH")
+                                .quantity(10)
+                                .build()
+                ));
+        when(orders.findByTraderIdAndStockAndStatus("T001", "AAPL", OrderStatus.PENDING))
+                .thenReturn(java.util.List.of());
+        PlaceOrderRequest request = new PlaceOrderRequest("T001", "AAPL", "TECH", 11, OrderSide.SELL);
+        assertThrows(ResponseStatusException.class, () -> service.placeOrder(request));
+        verify(orders, never()).save(any());
     }
 
     @Test
     void onlyPendingOrdersCanBeCancelled() {
-//        OrderEntity filled = new OrderEntity("T1", "AAPL", "TECH", 1, OrderSide.BUY);
-//        filled.fill();
-//        when(orders.findByIdAndTraderId("T1", filled.getId())).thenReturn(Optional.of(filled));
-//        assertThrows(ResponseStatusException.class, () -> service.cancel("T1", filled.getId()));
+        OrderEntity filled = new OrderEntity("T001", "AAPL", "TECH", 1, OrderSide.BUY);
+        filled.fill();
+        when(orders.findByIdAndTraderId(filled.getId(), filled.getTraderId())).thenReturn(Optional.of(filled));
+        assertThrows(ResponseStatusException.class, () -> service.cancel("T1", filled.getId()));
     }
 }

@@ -27,9 +27,9 @@ public final class OverlapAnalyzer {
             int denominator = portfolio.size() + basket.getValue().size();
             BigDecimal percent = denominator == 0 ? BigDecimal.ZERO :
                     BigDecimal.valueOf(2L * common)
-                            .divide(BigDecimal.valueOf(denominator), 2, RoundingMode.HALF_UP)
-                            .multiply(BigDecimal.valueOf(100));
-            results.add(new BasketOverlap(basket.getKey(), percent.setScale(2, RoundingMode.HALF_UP).toPlainString() + "%"));
+                            .multiply(BigDecimal.valueOf(100))
+                            .divide(BigDecimal.valueOf(denominator), 2, RoundingMode.HALF_UP);
+            results.add(new BasketOverlap(basket.getKey(), percent.setScale(2).toPlainString() + "%"));
             if (percent.compareTo(max) > 0) {
                 max = percent;
                 dominant = basket.getKey();
